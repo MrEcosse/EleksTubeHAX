@@ -480,6 +480,14 @@ void loop()
     tfts.dimming = MQTTCommandMainBrightness;
     tfts.ProcessUpdatedDimming();
     updateClockDisplay(TFTs::force);
+#ifdef WEB_SETUP_PORTAL
+    // Remember it for the current period, so the hourly day/night check does not undo it (and it survives a restart).
+    if (isNightTime(uclock.getHour24()))
+      hax.night_screen_level = tfts.dimming;
+    else
+      hax.day_screen_level = tfts.dimming;
+    hax.markDirty();
+#endif
   }
 
   if (MQTTCommandBackBrightnessReceived)
@@ -984,10 +992,12 @@ void setupMenu()
 #define NIGHT_START_NOW (hax.night_start_hour)
 #define DAY_START_NOW (hax.day_start_hour)
 #define TFT_NIGHT_LEVEL_NOW (hax.night_screen_level)
+#define TFT_DAY_LEVEL_NOW (hax.day_screen_level)
 #else
 #define NIGHT_START_NOW (NIGHT_TIME)
 #define DAY_START_NOW (DAY_TIME)
 #define TFT_NIGHT_LEVEL_NOW (TFT_DIMMED_INTENSITY)
+#define TFT_DAY_LEVEL_NOW (255)
 #endif
 
 bool isNightTime(uint8_t current_hour)
@@ -1012,6 +1022,19 @@ void checkDimmingNeeded()
   isDimmingNeeded = current_hour != hour_old; // check, if the hour has changed since last loop (from time passing by or from timezone change)
   if (isDimmingNeeded)
   {
+#ifdef WEB_SETUP_PORTAL
+    // Only touch the brightness when switching between day and night (or when forced via hour_old = 255),
+    // not every hour - otherwise a brightness set from Home Assistant is undone at the start of each hour.
+    static int8_t lastNightMode = -1; // -1 = not applied yet
+    const int8_t nightMode = isNightTime(current_hour) ? 1 : 0;
+    const bool forced = (hour_old == 255);
+    hour_old = current_hour;
+    if (!forced && nightMode == lastNightMode)
+    {
+      return;
+    }
+    lastNightMode = nightMode;
+#endif
     Serial.print("Current hour = ");
     Serial.print(current_hour);
     Serial.print(", Night Time Start = ");
@@ -1027,8 +1050,8 @@ void checkDimmingNeeded()
     }
     else
     {
-      Serial.println("Set to day time mode (max brightness)!");
-      tfts.dimming = 255; // 0..255
+      Serial.println("Set to day time mode!");
+      tfts.dimming = TFT_DAY_LEVEL_NOW; // 0..255
       tfts.ProcessUpdatedDimming();
       backlights.setDimming(false); // restore the configured backlight intensity
     }

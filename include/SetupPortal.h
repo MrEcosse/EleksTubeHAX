@@ -40,6 +40,7 @@ struct HaxSettings
   uint8_t night_start_hour;       // 0..23
   uint8_t day_start_hour;         // 0..23
   uint8_t night_screen_level;     // 0..255, brightness of the LCDs at night
+  uint8_t day_screen_level;       // 0..255, brightness of the LCDs during the day (main light brightness in Home Assistant)
   uint8_t night_backlight_level;  // 0..7, intensity of the backlight LEDs at night
 
   void setDefaults();

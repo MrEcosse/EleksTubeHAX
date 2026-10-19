@@ -64,6 +64,7 @@ void HaxSettings::setDefaults()
   night_start_hour = NIGHT_TIME;                // defaults come from _USER_DEFINES.h
   day_start_hour = DAY_TIME;
   night_screen_level = TFT_DIMMED_INTENSITY;
+  day_screen_level = 255;
   night_backlight_level = BACKLIGHT_DIMMED_INTENSITY;
 }
 
@@ -94,6 +95,7 @@ void HaxSettings::load()
   night_start_hour = p.getUChar("ng_start", night_start_hour) % 24;
   day_start_hour = p.getUChar("ng_end", day_start_hour) % 24;
   night_screen_level = p.getUChar("ng_scr", night_screen_level);
+  day_screen_level = p.getUChar("dy_scr", day_screen_level);
   uint8_t bl = p.getUChar("ng_bl", night_backlight_level);
   night_backlight_level = (bl > 7) ? 7 : bl;
   p.end();
@@ -121,6 +123,7 @@ void HaxSettings::save()
   p.putUChar("ng_start", night_start_hour);
   p.putUChar("ng_end", day_start_hour);
   p.putUChar("ng_scr", night_screen_level);
+  p.putUChar("dy_scr", day_screen_level);
   p.putUChar("ng_bl", night_backlight_level);
   p.end();
   dirty = false;
