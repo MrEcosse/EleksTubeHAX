@@ -10,12 +10,13 @@ input{width:100%;box-sizing:border-box;padding:9px;margin-top:3px;font-size:1em;
 input[type=checkbox]{width:auto;margin-right:8px}
 button{margin-top:18px;width:100%;padding:12px;font-size:1em;border:0;border-radius:6px;background:#2a7;color:#fff}
 small{color:#999}a{color:#9cf}
+#nets button{width:auto;margin:6px 6px 0 0;padding:7px 10px;background:#335;font-size:.9em}
 </style></head><body><main>
 <h1>Clock setup</h1>
 <form method="post" action="/save">
 <h2>WiFi</h2>
-<label>Network <small id="sc">(searching...)</small><input name="ssid" id="ssid" list="nets" required></label>
-<datalist id="nets"></datalist>
+<label>Network <small id="sc">(searching...)</small><input name="ssid" id="ssid" required></label>
+<div id="nets"></div>
 <label>Password <small>empty = keep current</small><input name="pass" type="password"></label>
 <h2>Home Assistant MQTT broker</h2>
 <label>Host (IP address or name) <small>empty = no MQTT</small><input name="host" id="host"></label>
@@ -30,5 +31,5 @@ small{color:#999}a{color:#9cf}
 </main><script>
 function $(i){return document.getElementById(i)}
 fetch('/cfg').then(r=>r.json()).then(c=>{$('ssid').value=c.ssid;$('host').value=c.host;$('port').value=c.port;$('user').value=c.user;$('strip').checked=c.strip});
-fetch('/scan').then(r=>r.json()).then(n=>{n.forEach(s=>{var o=document.createElement('option');o.value=s;$('nets').appendChild(o)});$('sc').textContent='('+n.length+' found)'}).catch(()=>{$('sc').textContent=''});
+fetch('/scan').then(r=>r.json()).then(n=>{n.forEach(s=>{var b=document.createElement('button');b.type='button';b.textContent=s;b.onclick=()=>{$('ssid').value=s};$('nets').appendChild(b)});$('sc').textContent='('+n.length+' found, tap one)'}).catch(()=>{$('sc').textContent=''});
 </script></body></html>
