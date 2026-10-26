@@ -82,7 +82,7 @@ bool loadCARootCert();
 char outbuf[64];
 
 #if defined(MQTT_HOME_ASSISTANT) && defined(WEB_SETUP_PORTAL)
-// Extra Home Assistant entities of the web setup build (LED strip, timezone, night dimming).
+// Extra Home Assistant entities of the web setup build (timezone, night dimming).
 static void extraSubscribe();
 static bool extraReportDiscovery(JsonDocument &discovery, const char *deviceName);
 static bool extraHandleCommand(const char *topic, byte *payload, unsigned int length);
@@ -1264,7 +1264,7 @@ bool MQTTReportDiscovery()
 
 #ifdef WEB_SETUP_PORTAL
 //----------------------------------------------------------------------------
-// Extra entities: front LED strip, timezone, night dimming.
+// Extra entities: timezone, night dimming (the LED strip is set on the setup page).
 // Table driven: one row per entity. State and command messages use the same JSON format as the
 // other entities: {"state": ...}
 //----------------------------------------------------------------------------
@@ -1288,7 +1288,6 @@ struct ExtraEntity
 };
 
 const ExtraEntity extras[] = {
-    {"strip_fitted", "Front LED strip fitted", "mdi:led-strip-variant", XSwitch, 0, 1, 1, NULL, NULL},
     {"tz_auto", "Automatic timezone", "mdi:earth", XSwitch, 0, 1, 1, NULL, NULL},
     {"tz_offset", "Timezone offset", "mdi:map-clock", XNumber, -12, 14, 0.25f, "h", "box"},
     {"night_dimming", "Night dimming", "mdi:weather-night", XSwitch, 0, 1, 1, NULL, NULL},
@@ -1307,20 +1306,18 @@ float extraGet(uint8_t i)
   switch (i)
   {
   case 0:
-    return hax.strip_fitted ? 1 : 0;
-  case 1:
     return hax.tz_auto ? 1 : 0;
-  case 2:
+  case 1:
     return (float)uclock.getTimeZoneOffset() / 3600.0f;
-  case 3:
+  case 2:
     return hax.night_enabled ? 1 : 0;
-  case 4:
+  case 3:
     return hax.night_start_hour;
-  case 5:
+  case 4:
     return hax.day_start_hour;
-  case 6:
+  case 5:
     return hax.night_screen_level;
-  case 7:
+  case 6:
     return hax.night_backlight_level;
   }
   return 0;
@@ -1336,37 +1333,33 @@ void extraSet(uint8_t i, float v)
   switch (i)
   {
   case 0:
-    hax.strip_fitted = (v >= 0.5f);
-    applyStripLength(hax.strip_fitted);
-    break;
-  case 1:
     hax.tz_auto = (v >= 0.5f);
     if (hax.tz_auto)
       geolocRequestUpdateNow(); // look the timezone up again
     break;
-  case 2:
+  case 1:
     hax.tz_auto = false; // setting the offset by hand switches the automatic lookup off
     uclock.setTimeZoneOffset((time_t)lroundf(v * 4.0f) * 900); // quarter hour steps
     lastMQTTCommandExecuted = millis(); // saves the clock's stored config shortly afterwards
     dimmingSettingsChanged();           // hour changes with the timezone
     break;
-  case 3:
+  case 2:
     hax.night_enabled = (v >= 0.5f);
     dimmingSettingsChanged();
     break;
-  case 4:
+  case 3:
     hax.night_start_hour = (uint8_t)v;
     dimmingSettingsChanged();
     break;
-  case 5:
+  case 4:
     hax.day_start_hour = (uint8_t)v;
     dimmingSettingsChanged();
     break;
-  case 6:
+  case 5:
     hax.night_screen_level = (uint8_t)v;
     dimmingSettingsChanged();
     break;
-  case 7:
+  case 6:
     hax.night_backlight_level = (uint8_t)v;
     dimmingSettingsChanged();
     break;

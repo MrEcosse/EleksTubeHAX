@@ -7,8 +7,8 @@
  *
  * - WiFi credentials: entered on the setup web page; stored by the ESP32 WiFi driver itself.
  * - MQTT broker (Home Assistant): entered on the setup web page; stored in NVS namespace "hax_setup".
- * - Everything else (front LED strip, timezone, night dimming) is changed live from Home Assistant
- *   and also stored in NVS namespace "hax_setup".
+ * - Front LED strip fitted: set on the setup web page.
+ * - Timezone and night dimming are changed live from Home Assistant; stored in NVS namespace "hax_setup".
  */
 
 #include "GLOBAL_DEFINES.h"
@@ -29,7 +29,7 @@ struct HaxSettings
   char mqtt_user[64];
   char mqtt_pass[64];
 
-  // --- Hardware option (setup web page and Home Assistant) ---
+  // --- Hardware option (setup web page) ---
   bool strip_fitted; // LED strip fitted along the front/bottom of the clock?
 
   // --- Timezone (Home Assistant). The offset itself lives in the clock's stored config. ---
@@ -66,8 +66,6 @@ bool wifiHasSavedCredentials();
 // Restarts the clock when something was saved. Returns only if nothing was configured (timeout / exit).
 bool runSetupPortal(bool atBoot);
 
-// Change the number of backlight LEDs while running (switching the front strip on or off).
-void applyStripLength(bool fitted);
 
 // Implemented in main.cpp.
 void dimmingSettingsChanged();

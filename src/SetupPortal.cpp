@@ -148,23 +148,6 @@ void HaxSettings::loop()
 }
 
 //----------------------------------------------------------------------------
-// Front LED strip
-//----------------------------------------------------------------------------
-
-void applyStripLength(bool fitted)
-{
-  const uint16_t wanted = fitted ? HAX_STRIP_LEDS : HAX_NO_STRIP_LEDS;
-  if (backlights.numPixels() == wanted)
-    return;
-
-  backlights.clear(); // switch everything off while the old length is still known to the driver
-  backlights.show();
-  backlights.updateLength(wanted);
-  backlights.setPattern(backlights.getPattern()); // forces the current pattern to be re-initialised
-  Serial.printf("Backlight length is now %u LEDs.\n", wanted);
-}
-
-//----------------------------------------------------------------------------
 // WiFi credentials (stored by the ESP32 WiFi driver itself)
 //----------------------------------------------------------------------------
 
