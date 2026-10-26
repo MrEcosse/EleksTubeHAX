@@ -253,7 +253,9 @@ void setup()
 
 #ifdef WEB_SETUP_PORTAL
   hax.load(); // MQTT broker, strip, timezone mode, night dimming
-  backlights.updateLength(hax.strip_fitted ? HAX_STRIP_LEDS : HAX_NO_STRIP_LEDS);
+#ifdef HARDWARE_IPSTUBE_CLOCK
+  backlights.updateLength(hax.strip_fitted ? HAX_STRIP_LEDS : HAX_NO_STRIP_LEDS); // front LED strip set on the setup page
+#endif
   backlights.setDimmedIntensity(hax.night_backlight_level);
 #endif
   backlights.begin(&stored_config.config.backlights);
@@ -933,7 +935,11 @@ void loop()
         }
         setupMenu();
         tfts.println("Web setup");
+#ifdef ONE_BUTTON_ONLY_MENU
         tfts.println("Hold=start");
+#else
+        tfts.println("+/-=start");
+#endif
       }
 #endif
     }

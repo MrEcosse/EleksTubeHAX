@@ -23,13 +23,13 @@ small{color:#999}a{color:#9cf}
 <label>Port<input name="port" id="port" type="number" min="1" max="65535" value="1883"></label>
 <label>User<input name="user" id="user"></label>
 <label>Password <small>empty = keep, - = none</small><input name="mpass" type="password"></label>
-<h2>Clock</h2>
-<label><input name="strip" id="strip" type="checkbox" value="1">LED strip fitted along the front</label>
+<div id="so" hidden><h2>Clock</h2>
+<label><input name="strip" id="strip" type="checkbox" value="1">LED strip fitted along the front</label></div>
 <button>Save and restart</button>
 </form>
 <p><a href="/exit">Close without changes</a></p>
 </main><script>
 function $(i){return document.getElementById(i)}
-fetch('/cfg').then(r=>r.json()).then(c=>{$('ssid').value=c.ssid;$('host').value=c.host;$('port').value=c.port;$('user').value=c.user;$('strip').checked=c.strip});
+fetch('/cfg').then(r=>r.json()).then(c=>{$('ssid').value=c.ssid;$('host').value=c.host;$('port').value=c.port;$('user').value=c.user;$('strip').checked=c.strip;$('so').hidden=!c.stripopt});
 fetch('/scan').then(r=>r.json()).then(n=>{n.forEach(s=>{var b=document.createElement('button');b.type='button';b.textContent=s;b.onclick=()=>{$('ssid').value=s};$('nets').appendChild(b)});$('sc').textContent='('+n.length+' found, tap one)'}).catch(()=>{$('sc').textContent=''});
 </script></body></html>

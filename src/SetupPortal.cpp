@@ -176,7 +176,11 @@ static void showOnScreens(const char *apName)
 {
   tfts.clear(); // selects and enables all displays
   tfts.fillScreen(TFT_BLACK);
+#ifdef DISPLAY_SMALL
+  tfts.setCursor(0, 0, 1); // 80x160 displays: font 1 (6x8 pixel), long names wrap to the next line
+#else
   tfts.setCursor(0, 0, 2); // font 2, 16 pixel high
+#endif
   tfts.setTextColor(TFT_GREEN, TFT_BLACK);
   tfts.println("WEB SETUP");
   tfts.setTextColor(TFT_WHITE, TFT_BLACK);
@@ -188,8 +192,10 @@ static void showOnScreens(const char *apName)
   tfts.setTextColor(TFT_YELLOW, TFT_BLACK);
   tfts.println("192.168.4.1");
   tfts.setTextColor(TFT_WHITE, TFT_BLACK);
+#ifndef DISPLAY_SMALL
   tfts.println("(opens by itself");
   tfts.println("on most phones)");
+#endif
 }
 
 static String jsonString(const String &s)
@@ -276,7 +282,12 @@ bool runSetupPortal(bool atBoot)
               json += ",\"host\":" + jsonString(hax.mqtt_host);
               json += ",\"port\":" + String(hax.mqtt_port);
               json += ",\"user\":" + jsonString(hax.mqtt_user);
-              json += ",\"strip\":" + String(hax.strip_fitted ? "true" : "false") + "}";
+              json += ",\"strip\":" + String(hax.strip_fitted ? "true" : "false");
+#ifdef HARDWARE_IPSTUBE_CLOCK
+              json += ",\"stripopt\":true}"; // only the IPSTube can have the front LED strip
+#else
+              json += ",\"stripopt\":false}";
+#endif
               server.send(200, "application/json", json); });
 
   server.on("/scan", HTTP_GET, [&]()
@@ -316,7 +327,9 @@ bool runSetupPortal(bool atBoot)
                 hax.mqtt_pass[0] = '\0'; // "-" = no password
               else if (mpass.length() > 0)
                 copyTrimmed(hax.mqtt_pass, sizeof(hax.mqtt_pass), mpass.c_str()); // empty = keep the current one
+#ifdef HARDWARE_IPSTUBE_CLOCK
               hax.strip_fitted = server.hasArg("strip");
+#endif
               hax.save();
 
               sendMessagePage(server, "Saved. The clock restarts and joins <b>" + htmlText(newSsid.length() ? newSsid : savedWifiSsid()) +

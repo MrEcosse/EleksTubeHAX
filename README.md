@@ -1006,6 +1006,7 @@ Firmware for the ESP32-S3 IPSTube clock and Home Assistant: flash it, then set u
 * **Home Assistant entities** in addition to the normal ones: automatic timezone, timezone offset (hours, quarter hour steps; setting it switches the automatic lookup off), night dimming on/off, night start hour, day start hour, night screen brightness, night backlight intensity. The main display brightness set from Home Assistant is kept (it is no longer reset to full brightness every hour). Settings are stored in the clock (NVS namespace `hax_setup`) 5 seconds after the last change.
 * The setup page is one gzip compressed page (~1 KB) served by the WebServer and DNSServer libraries of the ESP32 Arduino core. To change it, edit `tools/setup_page/setup_page.html` and run `python tools/setup_page/make_setup_page.py`.
 * Home Assistant (MQTT discovery) only; WPS, the generic/SmartNest MQTT mode and TLS stay options of the other environments.
+* Other clocks: the web setup is not tied to the IPSTube. Adding `-DWEB_SETUP_PORTAL` to the `build_flags` of another environment should give the same setup page and Home Assistant settings (the LED strip option only appears on the IPSTube; 80x160 displays use a smaller font). Only tested on the ESP32-S3 IPSTube so far - feedback for other clocks is welcome.
 
 
 ## 6\. Known problems/limitations, Notes
